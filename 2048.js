@@ -36,5 +36,6 @@ let directionMap = {
 // space 表示当前剩余的空格块数， score 表示当前的分数
 let space = 16, score = 0;
 
+// TODO: 绘制4*4游戏方格，随机生成2方块
 
 
