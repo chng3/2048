@@ -36,6 +36,52 @@ let directionMap = {
 // space 表示当前剩余的空格块数， score 表示当前的分数
 let space = 16, score = 0;
 
-// TODO: 绘制4*4游戏方格，随机生成2方块
-
+// TODO: 随机生成2方块
+let draw = {
+  // 循环生成4^2次函数
+  loop: function (func) {
+    for (let i = 0; i < map.length; i++) {
+      for (let j = 0; j < map.length; j++) {
+        func(i,j)
+      }
+    }
+  },
+  // 绘制圆角矩形
+  roundRect: function (x, y, c) {
+    // 定义方块宽度和边距宽度
+    var box_width = context.canvas.width*0.8*0.25;
+    var margin_width = context.canvas.width*0.2*0.20;
+    // 开始绘制路径
+    context.beginPath();
+    // 设置填充颜色
+    context.fillStyle=c;
+    // 移动到矩形左上角的位置
+    context.moveTo(x,y);
+    // 绘制圆角矩形的四个角
+    context.arcTo(x+box_width,y,x+box_width,y+1,margin_width*0.7);
+    context.arcTo(x+box_width,y+box_width,x+box_width-1,y+box_width,margin_width*0.7);
+    context.arcTo(x,y+box_width,x,y+box_width-1,margin_width*0.7);
+    context.arcTo(x,y,x+1,y,margin_width*0.7);
+    // 填充路径内部的颜色
+    context.fill();
+  },
+  // 根据地图绘制方格
+  block: function () {
+      draw.loop(function (i, j) {
+        // 根据map信息绘制4*4游戏方格
+        num = map[i][j]
+        color = num_colors[num]
+        draw.roundRect(i*130+30, j*130+30, color)
+        if(num!== 0){
+          context.font = "bold "+num_sizes[num]+"px Arial,Microsoft Yahei";
+          context.fillStyle = (num<=4)?"#776e65":"white";
+          context.fillText(String(map[i][j]),j*132+offsetx[num],i*132+80+num_sizes[num]/3);
+        }
+    })
+  },
+  
+}
+window.onload = function () {
+  draw.block()
+}
 
