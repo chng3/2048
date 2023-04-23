@@ -24,11 +24,7 @@ let num_sizes = {
   256:"50",512:"50",1024:"40",2048:"40"
 }
 // 不同数字的偏移量（为了将数字画在方块中心）
-let offsetx = {
-  0:65,2:65,4:65,8:65,
-  16:40,32:40,64:40,128:15,
-  256:15,512:15,1024:-10,2048:-10
-}
+let offsetx = { 0: 65, 2: 65, 4: 65, 8: 62, 16: 48, 32: 45, 64: 50, 128: 38, 256: 40, 512: 33, 1024: 33, 2048: 33 };
 // 上下左右键的code对应的方向信息
 let directionMap = {
   '38':[0,-1],'40':[0,1],'37':[-1,0],'39':[1,0]
@@ -36,7 +32,7 @@ let directionMap = {
 // space 表示当前剩余的空格块数， score 表示当前的分数
 let space = 16, score = 0;
 
-// TODO: 随机生成2方块
+// TODO: 监听键盘事件来控制数字方块的移动
 let draw = {
   // 循环生成4^2次函数
   loop: function (func) {
@@ -46,8 +42,24 @@ let draw = {
       }
     }
   },
+  // 关键算法1；随机生成方块方法
+  produce: function (){
+    var cot = Math.floor(Math.random()*space); // 随机生成一个数[0,15]
+    var k = 0;
+    // 循环遍历二维数组map，生成方块
+    draw.loop(function(i,j){
+        if(map[i][j]==0){ // 如果该位置没有方块
+            if(cot==k){ // 该位置为随机数生成的位置
+                map[i][j]=2; // 生成方块
+                draw.block(); // 绘制方块
+            }
+            k+=1; // 统计已遍历的方块数
+        }
+    });
+    space-=1; // 可生成方块的位置
+  },
   // 绘制圆角矩形
-  roundRect: function (x, y, c) {
+  roundRect: function (x,y,c){
     // 定义方块宽度和边距宽度
     var box_width = context.canvas.width*0.8*0.25;
     var margin_width = context.canvas.width*0.2*0.20;
@@ -71,7 +83,7 @@ let draw = {
         // 根据map信息绘制4*4游戏方格
         num = map[i][j]
         color = num_colors[num]
-        draw.roundRect(i*130+30, j*130+30, color)
+        draw.roundRect(j*130+30, i*130+30, color)
         if(num!== 0){
           context.font = "bold "+num_sizes[num]+"px Arial,Microsoft Yahei";
           context.fillStyle = (num<=4)?"#776e65":"white";
@@ -81,7 +93,9 @@ let draw = {
   },
   
 }
-window.onload = function () {
-  draw.block()
-}
+
+draw.produce()
+draw.produce()
+
+
 
