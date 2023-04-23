@@ -24,15 +24,19 @@ let num_sizes = {
   256:"50",512:"50",1024:"40",2048:"40"
 }
 // 不同数字的偏移量（为了将数字画在方块中心）
-let offsetx = { 0: 65, 2: 65, 4: 65, 8: 62, 16: 48, 32: 45, 64: 50, 128: 38, 256: 40, 512: 33, 1024: 33, 2048: 33 };
+let offsetx = {
+  0: 65, 2: 65, 4: 65, 8: 63,
+  16: 48, 32: 47, 64: 47, 128: 38,
+  256: 40, 512: 39, 1024: 36, 2048: 36 
+  }
 // 上下左右键的code对应的方向信息
 let directionMap = {
   '38':[0,-1],'40':[0,1],'37':[-1,0],'39':[1,0]
 }
 // space 表示当前剩余的空格块数， score 表示当前的分数
-let space = 16, score = 0;
+let space = 16, score = 0
 
-// TODO: 监听键盘事件来控制数字方块的移动
+// TODO: 完成移动端触摸屏幕进行游戏操作的逻辑 重点添加合并方块以及滑动动画
 let draw = {
   // 循环生成4^2次函数
   loop: function (func) {
@@ -43,26 +47,23 @@ let draw = {
     }
   },
   // 关键算法1；随机生成方块方法
-  produce: function (){
-    var cot = Math.floor(Math.random()*space); // 随机生成一个数[0,15]
-    var k = 0;
-    // 循环遍历二维数组map，生成方块
-    draw.loop(function(i,j){
-        if(map[i][j]==0){ // 如果该位置没有方块
-            if(cot==k){ // 该位置为随机数生成的位置
-                map[i][j]=2; // 生成方块
-                draw.block(); // 绘制方块
-            }
-            k+=1; // 统计已遍历的方块数
-        }
+  produce: function () {
+    let free = []; // 空闲位置数组
+    draw.loop(function(i, j){
+      if(map[i][j] == 0) free.push([i, j]); // 统计空闲位置
     });
-    space-=1; // 可生成方块的位置
+    if(free.length > 0) {
+      let index = Math.floor(Math.random() * free.length); // 随机生成一个索引号
+      let [i, j] = free[index]; // 计算对应的行列坐标
+      map[i][j] = 2; // 在地图对应位置生成方块
+      draw.block(); // 绘制方块
+    }
   },
   // 绘制圆角矩形
   roundRect: function (x,y,c){
     // 定义方块宽度和边距宽度
-    var box_width = context.canvas.width*0.8*0.25;
-    var margin_width = context.canvas.width*0.2*0.20;
+    let box_width = context.canvas.width*0.8*0.25;
+    let margin_width = context.canvas.width*0.2*0.20;
     // 开始绘制路径
     context.beginPath();
     // 设置填充颜色
@@ -94,8 +95,83 @@ let draw = {
   
 }
 
-draw.produce()
-draw.produce()
+let game = {
+  // 初始化游戏
+  init: function () {
+    draw.produce()
+    draw.produce()
+    
+  },
+  // 检查游戏是否已经结束
+  isGameOver: function () {
+    // 检查是否有空格子
+    for (var i = 0; i < 4; i++) {
+      for (var j = 0; j < 4; j++) {
+        if (map[i][j] == 0) {
+          return false; // 有空格子，游戏未结束
+        }
+      }
+    }
+  
+    // 检查是否有可以合并的方块
+    for (var i = 0; i < 4; i++) {
+      for (var j = 0; j < 4; j++) {
+        if (j < 3 && map[i][j] == map[i][j+1]) {
+          return false; // 有可以合并的方块，游戏未结束
+        }
+        if (i < 3 && map[i][j] == map[i+1][j]) {
+          return false; // 有可以合并的方块，游戏未结束
+        }
+      }
+    }
+  
+    // 所有方格都被填满且无法进行任何一次合并，游戏结束
+    return true;
+  },
+  // 核心算法2之 “移动数字方块时的合并逻辑” 实现
+  move: function (dir) {
+    //用来调整不同方向的遍历方式
+    function modify(x,y){
+      tx=x,ty=y;
+      if(dir[0]==0)tx=[ty,ty=tx][0];
+      if(dir[1]>0)tx=3-tx;
+      if(dir[0]>0)ty=3-ty;
+      return [tx,ty];
+    }
+    //根据移动的方向，将地图中对应行/列中的数字一个个压入栈中，如果第一次遇到栈顶数字和待入栈数字相等，则栈顶数字乘2，最后用栈中数字更新地图中的对应行/列
+    for(let i=0;i<4;i++){
+        let tmp = Array();
+        let isadd = false;
+        for(let j=0;j<4;j++){
+            let ti=modify(i,j)[0],tj=modify(i,j)[1];
+            if(map[ti][tj]!=0){
+                if(!isadd&&map[ti][tj]==tmp[tmp.length-1])score+=(tmp[tmp.length-1]*=2),isadd=true,space+=1;
+                else tmp.push(map[ti][tj]);
+            }
+        }
+        for(let j=0;j<4;j++){
+            let ti=modify(i,j)[0],tj=modify(i,j)[1];
+            map[ti][tj] = isNaN(tmp[j])?0:tmp[j];
+        }
+    }
+    draw.produce();
+    // 判断是否游戏结束
+    if (game.isGameOver()) {
+      alert("Game over!");
+      // 游戏结束后，可以进行一些清理操作
+    }
+    draw.block();
+    // 更新得分等信息
+  }
+}
+
+// 键盘事件监听
+document.onkeydown = function (e) {
+  dir = directionMap[(e?e:event).keyCode]
+  game.move(dir)
+}
+// 启动游戏
+game.init()
 
 
 
