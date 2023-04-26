@@ -33,8 +33,8 @@ let offsetx = {
 let directionMap = {
   '38': [0, -1], '40': [0, 1], '37': [-1, 0], '39': [1, 0]
 }
-// space 表示当前剩余的空格块数， score 表示当前的分数
-let space = 16, score = 0
+// space 表示当前剩余的空格块数， score 表示当前的分数, history 表示历史最高分
+let space = 16, score = 0, history = 0
 
 // TODO: 重点添加合并方块以及滑动动画
 let draw = {
@@ -78,7 +78,7 @@ let draw = {
     // 填充路径内部的颜色
     context.fill();
   },
-  // 根据地图绘制方格
+  // 根据地图绘制方格, 更新分数
   block: function () {
     draw.loop(function (i, j) {
       // 根据map信息绘制4*4游戏方格
@@ -91,6 +91,7 @@ let draw = {
         context.fillText(String(map[i][j]), j * 132 + offsetx[num], i * 132 + 80 + num_sizes[num] / 3);
       }
     })
+    document.getElementById('score').innerText='当前得分：' + String(score)
   },
 
 }
@@ -163,7 +164,11 @@ let game = {
     // 判断是否游戏结束
     if (game.isGameOver()) {
       alert("游戏结束！");
-      // 游戏结束后，可以进行一些清理操作
+      // 游戏结束后，将得分与历史最高分做对比
+      if(score > history){
+        // TODO: 更新历史得分，储存到本地
+        
+      }
     }
     draw.block();
     // 更新得分等信息
