@@ -107,6 +107,16 @@ let game = {
     } else {
       bindKeyboardEventHandlers()
     }
+    // 初始化历史得分
+    if(localStorage.history) {
+      // 显示历史得分
+      document.getElementById("history").innerText = "历史最高得分：" + localStorage.history
+    } else {
+      // 初始化
+      localStorage.history = history
+      document.getElementById("history").innerText = "历史最高得分：" + String(history)
+    }
+    
   },
   // 检查游戏是否已经结束
   isGameOver: function () {
@@ -161,17 +171,16 @@ let game = {
       }
     }
     draw.produce();
+    draw.block();
     // 判断是否游戏结束
     if (game.isGameOver()) {
       alert("游戏结束！");
       // 游戏结束后，将得分与历史最高分做对比
-      if(score > history){
-        // TODO: 更新历史得分，储存到本地
-        
+      if(score > localStorage.history){
+        // 更新历史得分，储存到本地
+        localStorage.history = score
       }
     }
-    draw.block();
-    // 更新得分等信息
   }
 }
 
@@ -219,6 +228,12 @@ function bindTouchEventHandlers() {
     if (dx > 50 && Math.abs(dx / dy) > 2) game.move([1, 0]); // 右滑
   }
 }
+// 重新开始游戏
+const restartBtn = document.querySelector('#restart_btn');
+restartBtn.addEventListener('click', () => {
+  location.reload();
+});
+
 // 启动游戏
 game.init()
 

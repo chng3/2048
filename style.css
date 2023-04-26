@@ -10,7 +10,7 @@ canvas {
   height: 50px;
 }
 .item span {
-  font-size: 25px;
+  font-size: 20px;
   float: left;
   color: #776e65;
   font-weight: bold;
@@ -35,3 +35,25 @@ canvas {
 .item button:hover {
   background: #a29c96;
 }
+/* 媒体查询：适配设备宽度小于等于600像素，针对微信浏览器 */
+@media (max-width: 600px) {
+  canvas {
+    width: 100%;
+    height: auto;
+  }
+  .item {
+    width: 100%;
+    margin: 10px auto;
+    height: 30px;
+  }
+  .item span {
+    font-size: 15px;
+    margin-left: 10px;
+  }
+  .item button {
+    font-size: 14px;
+    width: 100px;
+    height: 30px;
+  }
+}
+
