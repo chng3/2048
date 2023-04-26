@@ -25,9 +25,9 @@ let num_sizes = {
 }
 // 不同数字的偏移量（为了将数字画在方块中心）
 let offsetx = {
-  0: 65, 2: 65, 4: 65, 8: 63,
-  16: 48, 32: 47, 64: 47, 128: 38,
-  256: 40, 512: 39, 1024: 36, 2048: 36
+  0: 65, 2: 62, 4: 61, 8: 62,
+  16: 43, 32: 44, 64: 43, 128: 31,
+  256: 36, 512: 37, 1024: 34, 2048: 36
 }
 // 上下左右键的code对应的方向信息
 let directionMap = {
@@ -84,7 +84,7 @@ let draw = {
       // 根据map信息绘制4*4游戏方格
       num = map[i][j]
       color = num_colors[num]
-      draw.roundRect(j * 130 + 30, i * 130 + 30, color)
+      draw.roundRect(j * 130 + 25, i * 130 + 25, color)
       if (num !== 0) {
         context.font = "bold " + num_sizes[num] + "px Arial,Microsoft Yahei";
         context.fillStyle = (num <= 4) ? "#776e65" : "white";
@@ -162,7 +162,7 @@ let game = {
     draw.produce();
     // 判断是否游戏结束
     if (game.isGameOver()) {
-      alert("Game over!");
+      alert("游戏结束！");
       // 游戏结束后，可以进行一些清理操作
     }
     draw.block();
